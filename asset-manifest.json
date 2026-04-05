@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/WaterPurifiers/static/css/main.c22c5007.css",
+    "main.js": "/WaterPurifiers/static/js/main.87b3a3b0.js",
+    "static/js/453.7ebd3f80.chunk.js": "/WaterPurifiers/static/js/453.7ebd3f80.chunk.js",
+    "index.html": "/WaterPurifiers/index.html",
+    "main.c22c5007.css.map": "/WaterPurifiers/static/css/main.c22c5007.css.map",
+    "main.87b3a3b0.js.map": "/WaterPurifiers/static/js/main.87b3a3b0.js.map",
+    "453.7ebd3f80.chunk.js.map": "/WaterPurifiers/static/js/453.7ebd3f80.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c22c5007.css",
+    "static/js/main.87b3a3b0.js"
+  ]
+}
