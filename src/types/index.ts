@@ -41,6 +41,7 @@ export interface Order {
   orderDate: string;
   estimatedDelivery: string;
   status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED';
+  emailSent?: boolean;
 }
 
 // Shopping Context Types

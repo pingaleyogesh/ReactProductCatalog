@@ -1,12 +1,54 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useShoppingContext } from '../context/ShoppingContext';
 import { Order } from '../types/index';
 import '../styles/OrderConfirmation.css';
 
 const OrderConfirmationPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const order = location.state?.order as Order;
+  const [searchParams] = useSearchParams();
+  const { clearCart } = useShoppingContext();
+  const sessionId = searchParams.get('session_id');
+  const [order, setOrder] = useState<Order | null>(location.state?.order || null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (order || !sessionId) {
+      return;
+    }
+
+    setLoading(true);
+    fetch(`/api/order-by-session/${sessionId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.order) {
+          setOrder(data.order);
+        }
+      })
+      .catch((error) => {
+        console.error('Unable to load order from session:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [order, sessionId]);
+
+  useEffect(() => {
+    if (order) {
+      clearCart();
+    }
+  }, [order, clearCart]);
+
+  if (loading) {
+    return (
+      <div className="confirmation-container">
+        <div className="loading-message">
+          <h2>Loading order details…</h2>
+        </div>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -145,10 +187,32 @@ const OrderConfirmationPage: React.FC = () => {
         </div>
 
         <div className="confirmation-message">
-          <p>
-            A confirmation email has been sent to <strong>{order.customerDetails.email}</strong>
-          </p>
-          <p>You will receive updates on your order via SMS and email.</p>
+          {order.emailSent ? (
+            <>
+              <p>
+                A confirmation email has been sent to <strong>{order.customerDetails.email}</strong>
+              </p>
+              <p>You will receive updates on your order via SMS and email.</p>
+            </>
+          ) : order.paymentMethod === 'COD' ? (
+            <>
+              <p>
+                Your order has been confirmed. Order details have been saved for reference.
+              </p>
+              <p>
+                Our team will contact you at <strong>{order.customerDetails.phone}</strong> to
+                arrange delivery.
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                Your order has been received. You can track its status using the Order ID:{' '}
+                <strong>{order.orderId}</strong>
+              </p>
+              <p>Check back soon for payment confirmation and tracking updates.</p>
+            </>
+          )}
         </div>
 
         <div className="confirmation-actions">

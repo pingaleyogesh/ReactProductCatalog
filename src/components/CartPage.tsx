@@ -49,7 +49,16 @@ const CartPage: React.FC = () => {
                 <tr key={item.product.id} className="cart-item-row">
                   <td>
                     <div className="product-info">
-                      <img src={item.product.image} alt={item.product.name} width={50} />
+                      <img
+                        src={item.product.image}
+                        alt={item.product.name}
+                        width={50}
+                        onError={(event) => {
+                          const target = event.currentTarget as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = '/logo192.png';
+                        }}
+                      />
                       <span>{item.product.name}</span>
                     </div>
                   </td>

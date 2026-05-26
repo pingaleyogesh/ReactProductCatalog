@@ -29,7 +29,8 @@ const ProductPage: React.FC = () => {
   return (
     <div className="products-container">
       <header className="products-header">
-        <h1>Water Purifiers</h1>
+        <img src="/SiddhiAqua.png" alt="SiddhiAqua" className="header-logo" />
+        <h1>World of Purity</h1>
         <button className="cart-btn" onClick={() => navigate('/cart')}>
           🛒 Go to Cart
         </button>
@@ -39,7 +40,15 @@ const ProductPage: React.FC = () => {
         {products.map((product) => (
           <div key={product.id} className="product-card">
             <div className="product-image">
-              <img src={product.image} alt={product.name} />
+              <img
+                src={product.image}
+                alt={product.name}
+                onError={(event) => {
+                  const target = event.currentTarget as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = '/logo192.png';
+                }}
+              />
             </div>
             <div className="product-info">
               <h3>{product.name}</h3>

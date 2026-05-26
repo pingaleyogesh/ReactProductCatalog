@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useShoppingContext } from '../context/ShoppingContext';
 import { CustomerDetails, PaymentMethod } from '../types/index';
+// @ts-ignore: CSS import without type declarations
 import '../styles/OrderSubmission.css';
 
 const OrderSubmissionPage: React.FC = () => {
@@ -22,6 +23,7 @@ const OrderSubmissionPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Partial<CustomerDetails>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<CustomerDetails> = {};
@@ -50,7 +52,7 @@ const OrderSubmissionPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -62,7 +64,8 @@ const OrderSubmissionPage: React.FC = () => {
       return;
     }
 
-    // Generate order ID
+    setIsSubmitting(true);
+
     const orderId = `ORD-${Date.now()}`;
     const total = getCartTotal();
 
@@ -75,12 +78,34 @@ const OrderSubmissionPage: React.FC = () => {
       customerDetails: formData,
       orderDate: new Date().toISOString(),
       estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'PENDING' as const,
+      status: paymentMethod === 'COD' ? 'CONFIRMED' as const : 'PENDING' as const,
     };
 
-    submitOrder(order);
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order }),
+      });
 
-    navigate('/order-confirmation', { state: { order } });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to submit order.');
+      }
+
+      if (paymentMethod === 'COD') {
+        submitOrder(order);
+        navigate('/order-confirmation', { state: { order: data.order } });
+      } else if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Unable to create payment session.');
+      }
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to submit order.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -209,8 +234,8 @@ const OrderSubmissionPage: React.FC = () => {
             <button type="button" onClick={() => navigate('/payment')} className="cancel-btn">
               Cancel
             </button>
-            <button type="submit" className="submit-btn">
-              Place Order
+            <button type="submit" className="submit-btn" disabled={isSubmitting}>
+              {isSubmitting ? 'Placing Order...' : 'Place Order'}
             </button>
           </div>
         </form>

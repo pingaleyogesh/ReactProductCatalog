@@ -16,8 +16,15 @@
 }
 
 .products-header h1 {
-  font-size: 28px;
+  font-size: 25px;
   color: #333;
+  margin: 0 20px;
+}
+
+.header-logo {
+  max-height: 230px;
+  width: auto;
+  display: block;
 }
 
 .cart-btn {
