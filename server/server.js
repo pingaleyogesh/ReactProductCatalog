@@ -4,12 +4,13 @@ const Stripe = require('stripe');
 const sgMail = require('@sendgrid/mail');
 const cors = require('cors');
 const path = require('path');
+const db = require('./db');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Serve public assets (images, favicon, etc.) so the CRA dev proxy can fetch them
+// Serve public assets directly from the server so image requests work in development.
 app.use(express.static(path.join(__dirname, '../public')));
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
@@ -29,8 +30,6 @@ if (!SENDGRID_API_KEY || !FROM_EMAIL) {
 } else {
   sgMail.setApiKey(SENDGRID_API_KEY);
 }
-
-const orders = new Map();
 
 const buildEmailHtml = (order, paymentStatus) => {
   const totalAmount = order.totalAmount;
@@ -92,16 +91,28 @@ const sendOrderEmail = async (order, status) => {
   });
 };
 
-const storeOrder = (order) => {
-  const storedOrder = {
-    ...order,
-    status: order.paymentMethod === 'COD' ? 'CONFIRMED' : 'PENDING',
-    emailSent: order.paymentMethod === 'COD',
-  };
+app.get('/api/products', (req, res) => {
+  try {
+    const products = db.getProducts();
+    return res.json(products);
+  } catch (error) {
+    console.error('Failed to fetch products:', error);
+    return res.status(500).json({ error: 'Unable to fetch products.' });
+  }
+});
 
-  orders.set(order.orderId, storedOrder);
-  return storedOrder;
-};
+app.get('/api/products/:productId', (req, res) => {
+  try {
+    const product = db.getProductById(req.params.productId);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found.' });
+    }
+    return res.json(product);
+  } catch (error) {
+    console.error('Failed to fetch product:', error);
+    return res.status(500).json({ error: 'Unable to fetch product.' });
+  }
+});
 
 app.post('/api/orders', async (req, res) => {
   try {
@@ -110,15 +121,13 @@ app.post('/api/orders', async (req, res) => {
       return res.status(400).json({ error: 'Order payload is required.' });
     }
 
-    const storedOrder = storeOrder(order);
-
     if (order.paymentMethod === 'COD') {
+      const storedOrder = db.createOrder(order);
       try {
         await sendOrderEmail(storedOrder, 'paid');
       } catch (emailError) {
         console.error('SendGrid email error:', emailError);
       }
-
       return res.json({ order: storedOrder });
     }
 
@@ -152,17 +161,13 @@ app.post('/api/orders', async (req, res) => {
       },
     });
 
-    const pendingOrder = {
-      ...storedOrder,
-      stripeSessionId: session.id,
-      status: 'PENDING',
-      emailSent: false,
-    };
-
-    orders.set(order.orderId, pendingOrder);
-    return res.json({ url: session.url });
+    const pendingOrder = db.createOrder(order, session.id);
+    return res.json({ url: session.url, order: pendingOrder });
   } catch (error) {
     console.error('Order creation error:', error);
+    if (error.message.includes('Insufficient inventory')) {
+      return res.status(400).json({ error: error.message });
+    }
     return res.status(500).json({ error: 'Unable to create order or payment session.' });
   }
 });
@@ -186,19 +191,19 @@ app.get('/api/order-by-session/:sessionId', async (req, res) => {
       return res.status(404).json({ error: 'Order metadata not found for this session.' });
     }
 
-    const order = orders.get(orderId);
+    const order = db.getOrderById(orderId);
     if (!order) {
       return res.status(404).json({ error: 'Order not found.' });
     }
 
     if (session.payment_status === 'paid' && order.status !== 'CONFIRMED') {
-      order.status = 'CONFIRMED';
+      const updated = db.updateOrderStatus(orderId, 'CONFIRMED', true);
       try {
-        await sendOrderEmail(order, 'paid');
-        order.emailSent = true;
+        await sendOrderEmail(updated, 'paid');
       } catch (emailError) {
         console.error('SendGrid email error:', emailError);
       }
+      return res.json({ order: updated });
     }
 
     return res.json({ order });
@@ -209,12 +214,16 @@ app.get('/api/order-by-session/:sessionId', async (req, res) => {
 });
 
 app.get('/api/orders/:orderId', (req, res) => {
-  const { orderId } = req.params;
-  const order = orders.get(orderId);
-  if (!order) {
-    return res.status(404).json({ error: 'Order not found.' });
+  try {
+    const order = db.getOrderById(req.params.orderId);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found.' });
+    }
+    return res.json({ order });
+  } catch (error) {
+    console.error('Failed to fetch order:', error);
+    return res.status(500).json({ error: 'Unable to fetch order.' });
   }
-  return res.json({ order });
 });
 
 if (process.env.NODE_ENV === 'production') {

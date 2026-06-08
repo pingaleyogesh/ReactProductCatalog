@@ -1,0 +1,106 @@
+{
+  "defaultData": {
+    "products": [],
+    "orders": []
+  },
+  "products": [
+    {
+      "id": "1",
+      "name": "Purosis AQUAPURO 9 L RO + UV + UF + Alkaline Water Purifier",
+      "description": "Advanced RO technology with 5-stage filtration",
+      "price": 10999,
+      "image": "/Purosis AQUAPURO 9 L RO + UV + UF + Alkaline Water Purifier.jpg",
+      "inventory": 25,
+      "filtrationCapacity": "100 GPD",
+      "warranty": "2 years"
+    },
+    {
+      "id": "2",
+      "name": "Aquadfresh Ro water Purifier with copper Technology 12 L RO + UV + UF + TDS Control Water Purifier",
+      "description": "Premium RO+UV with advanced minerals addition",
+      "price": 6900,
+      "image": "/Aquadfresh Ro water Purifier with copper Technology 12 L RO + UV + UF + TDS Control Water Purifier.webp",
+      "inventory": 15,
+      "filtrationCapacity": "150 GPD",
+      "warranty": "2 years"
+    },
+    {
+      "id": "3",
+      "name": "Fighter P & A 7 L RO + UV + UF Water Purifier",
+      "description": "Entry-level water purifier with 3-stage filtration",
+      "price": 11500,
+      "image": "/Fighter P & A 7 L RO + UV + UF Water Purifier.jpg",
+      "inventory": 20,
+      "filtrationCapacity": "100 GPD",
+      "warranty": "2 years"
+    },
+    {
+      "id": "4",
+      "name": "aquayash-smart-water-purifier smart plus",
+      "description": "RO + UV + UF + Alkaline Water Purifier",
+      "price": 10500,
+      "image": "/aquayash water purifier smart plus.jpg",
+      "inventory": 7,
+      "filtrationCapacity": "800 GPD",
+      "warranty": "1 years"
+    },
+    {
+      "id": "5",
+      "name": "Annual Service and Maintenance",
+      "description": "Service and maintenance for 1 year",
+      "price": 2999,
+      "image": "/RO-AMC.jpg",
+      "inventory": 50,
+      "filtrationCapacity": "N/A",
+      "warranty": "1 year"
+    },
+    {
+      "id": "6",
+      "name": "UTC P&A Fighter 7 L RO + UV + UF Water Purifier",
+      "description": "All-in-one water treatment solution",
+      "price": 12900,
+      "image": "/UTC P&A Fighter.jpg",
+      "inventory": 5,
+      "filtrationCapacity": "500 GPD",
+      "warranty": "1 years"
+    }
+  ],
+  "orders": [
+    {
+      "orderId": "ORD-1780920508374",
+      "customerId": "CUST-1780920508374",
+      "items": [
+        {
+          "product": {
+            "id": "4",
+            "name": "aquayash-smart-water-purifier smart plus",
+            "description": "RO + UV + UF + Alkaline Water Purifier",
+            "price": 10500,
+            "image": "/aquayash water purifier smart plus.jpg",
+            "inventory": 8,
+            "filtrationCapacity": "800 GPD",
+            "warranty": "1 years"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 10500,
+      "paymentMethod": "COD",
+      "customerDetails": {
+        "firstName": "yogesh",
+        "lastName": "pingale",
+        "email": "pingaleyogesh@gmail.com",
+        "phone": "9890536222",
+        "address": "B8, Park Infinia1",
+        "city": "Pune",
+        "state": "India",
+        "pincode": "412308"
+      },
+      "orderDate": "2026-06-08T12:08:28.374Z",
+      "estimatedDelivery": "2026-06-15T12:08:28.375Z",
+      "status": "CONFIRMED",
+      "emailSent": true,
+      "stripeSessionId": null
+    }
+  ]
+}

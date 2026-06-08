@@ -68,9 +68,26 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 
 export const ShoppingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [products] = useState<Product[]>(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+          throw new Error('Failed to load products');
+        }
+        const productData = await response.json();
+        setProducts(productData);
+      } catch (error) {
+        console.error('Product fetch error:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const addToCart = (product: Product, quantity: number) => {
     setCart((prevCart) => {
@@ -112,6 +129,18 @@ export const ShoppingProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const submitOrder = (order: Order) => {
     setOrders((prevOrders) => [...prevOrders, order]);
+    setProducts((prevProducts) =>
+      prevProducts.map((product) => {
+        const cartItem = order.items.find((item) => item.product.id === product.id);
+        if (!cartItem) {
+          return product;
+        }
+        return {
+          ...product,
+          inventory: Math.max(product.inventory - cartItem.quantity, 0),
+        };
+      })
+    );
     clearCart();
   };
 
