@@ -9,6 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Serve public assets (images, favicon, etc.) so the CRA dev proxy can fetch them
+app.use(express.static(path.join(__dirname, '../public')));
+
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 const FROM_EMAIL = process.env.FROM_EMAIL;

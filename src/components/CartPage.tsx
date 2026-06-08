@@ -50,7 +50,10 @@ const CartPage: React.FC = () => {
                   <td>
                     <div className="product-info">
                       <img
-                        src={item.product.image}
+                        src={item.product.image
+                          .split('/')
+                          .map((segment) => encodeURIComponent(segment))
+                          .join('/')}
                         alt={item.product.name}
                         width={50}
                         onError={(event) => {

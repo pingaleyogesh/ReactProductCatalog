@@ -7,6 +7,7 @@ const ProductPage: React.FC = () => {
   const { products, addToCart } = useShoppingContext();
   const navigate = useNavigate();
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   const handleQuantityChange = (productId: string, value: number) => {
     setQuantities({
@@ -26,6 +27,20 @@ const ProductPage: React.FC = () => {
     }
   };
 
+  const getImageUrl = (image: string) =>
+    image
+      .split('/')
+      .map((segment) => encodeURIComponent(segment))
+      .join('/');
+
+  const handleImageClick = (imageSrc: string) => {
+    setEnlargedImage(imageSrc);
+  };
+
+  const closeEnlargedImage = () => {
+    setEnlargedImage(null);
+  };
+
   return (
     <div className="products-container">
       <header className="products-header">
@@ -41,13 +56,15 @@ const ProductPage: React.FC = () => {
           <div key={product.id} className="product-card">
             <div className="product-image">
               <img
-                src={product.image}
+                src={getImageUrl(product.image)}
                 alt={product.name}
+                onClick={() => handleImageClick(getImageUrl(product.image))}
                 onError={(event) => {
                   const target = event.currentTarget as HTMLImageElement;
                   target.onerror = null;
                   target.src = '/logo192.png';
                 }}
+                style={{ cursor: 'pointer' }}
               />
             </div>
             <div className="product-info">
@@ -86,6 +103,17 @@ const ProductPage: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {enlargedImage && (
+        <div className="image-modal-overlay" onClick={closeEnlargedImage}>
+          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="image-modal-close" onClick={closeEnlargedImage}>
+              ✕
+            </button>
+            <img src={enlargedImage} alt="Enlarged product" className="enlarged-image" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
