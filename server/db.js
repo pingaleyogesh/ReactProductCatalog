@@ -117,7 +117,7 @@ const createOrder = (order, stripeSessionId = null) => {
   const storedOrder = {
     ...order,
     status: order.paymentMethod === 'COD' ? 'CONFIRMED' : 'PENDING',
-    emailSent: order.paymentMethod === 'COD',
+    emailSent: false,
     stripeSessionId,
   };
 
@@ -138,6 +138,16 @@ const updateOrderStatus = (orderId, status, emailSent = false) => {
   return order;
 };
 
+const updateOrderEmailSent = (orderId, emailSent = true) => {
+  const order = getOrderById(orderId);
+  if (!order) {
+    return null;
+  }
+  order.emailSent = emailSent;
+  db.write();
+  return order;
+};
+
 init();
 
 module.exports = {
@@ -147,4 +157,5 @@ module.exports = {
   getOrderBySessionId,
   createOrder,
   updateOrderStatus,
+  updateOrderEmailSent,
 };

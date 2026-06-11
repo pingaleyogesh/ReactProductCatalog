@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const Stripe = require('stripe');
-const sgMail = require('@sendgrid/mail');
+const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
 const db = require('./db');
@@ -14,22 +14,45 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL;
+const SMTP_HOST = process.env.SMTP_HOST;
+const SMTP_PORT = process.env.SMTP_PORT || '465';
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASS = process.env.SMTP_PASS;
+const SMTP_SECURE = process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'orders@siddhiaqua.shop';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'pingaleyogesh@gmail.com';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const PORT = process.env.SERVER_PORT || 5000;
 
-const stripe = STRIPE_SECRET_KEY ? Stripe(STRIPE_SECRET_KEY) : null;
+const transporter = SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS
+  ? nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: Number(SMTP_PORT),
+      secure: SMTP_SECURE,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS,
+      },
+    })
+  : null;
 
 if (!STRIPE_SECRET_KEY) {
   console.warn('Missing STRIPE_SECRET_KEY in environment. Stripe payment will be disabled and only COD orders will work.');
 }
 
-if (!SENDGRID_API_KEY || !FROM_EMAIL) {
-  console.warn('SendGrid is not fully configured. Email notifications will be disabled until SENDGRID_API_KEY and FROM_EMAIL are set.');
+if (!transporter || !FROM_EMAIL) {
+  console.warn('SMTP is not fully configured. Email notifications will be disabled until SMTP_HOST, SMTP_USER, SMTP_PASS, and FROM_EMAIL are set.');
 } else {
-  sgMail.setApiKey(SENDGRID_API_KEY);
+  transporter.verify((error) => {
+    if (error) {
+      console.warn('SMTP transporter verification failed:', error);
+    } else {
+      console.log('SMTP transporter is ready to send emails.');
+    }
+  });
 }
+
+const stripe = STRIPE_SECRET_KEY ? Stripe(STRIPE_SECRET_KEY) : null;
 
 const buildEmailHtml = (order, paymentStatus) => {
   const totalAmount = order.totalAmount;
@@ -68,8 +91,8 @@ const buildEmailHtml = (order, paymentStatus) => {
 };
 
 const sendOrderEmail = async (order, status) => {
-  if (!SENDGRID_API_KEY || !FROM_EMAIL) {
-    console.warn('SendGrid configuration missing. Email not sent.');
+  if (!transporter || !FROM_EMAIL) {
+    console.warn('SMTP configuration missing. Email not sent.');
     return;
   }
 
@@ -82,11 +105,50 @@ const sendOrderEmail = async (order, status) => {
     order.totalAmount * 1.18
   ).toLocaleString()}`;
 
-  await sgMail.send({
-    to: order.customerDetails.email,
+  await transporter.sendMail({
     from: FROM_EMAIL,
+    to: order.customerDetails.email,
     subject,
     text,
+    html,
+  });
+};
+
+const sendAdminNotification = async (order, eventType = 'New order placed') => {
+  if (!transporter || !ADMIN_EMAIL || !FROM_EMAIL) {
+    console.warn('SMTP or admin email configuration missing. Admin notification not sent.');
+    return;
+  }
+
+  const subject = `${eventType}: ${order.orderId}`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #333;">
+      <h2>${eventType}</h2>
+      <p><strong>Order ID:</strong> ${order.orderId}</p>
+      <p><strong>Customer:</strong> ${order.customerDetails.firstName} ${order.customerDetails.lastName}</p>
+      <p><strong>Email:</strong> ${order.customerDetails.email}</p>
+      <p><strong>Phone:</strong> ${order.customerDetails.phone}</p>
+      <p><strong>Payment method:</strong> ${order.paymentMethod.replace(/_/g, ' ')}</p>
+      <p><strong>Total amount:</strong> ₹${order.totalAmount.toLocaleString()}</p>
+      <ul>
+        ${order.items
+          .map(
+            (item) =>
+              `<li>${item.product.name} x ${item.quantity} = ₹${(
+                item.product.price * item.quantity
+              ).toLocaleString()}</li>`
+          )
+          .join('')}
+      </ul>
+      <p><strong>Shipping address:</strong></p>
+      <p>${order.customerDetails.address}, ${order.customerDetails.city}, ${order.customerDetails.state} - ${order.customerDetails.pincode}</p>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: FROM_EMAIL,
+    to: ADMIN_EMAIL,
+    subject,
     html,
   });
 };
@@ -123,12 +185,20 @@ app.post('/api/orders', async (req, res) => {
 
     if (order.paymentMethod === 'COD') {
       const storedOrder = db.createOrder(order);
+      let emailSent = false;
       try {
         await sendOrderEmail(storedOrder, 'paid');
+        emailSent = true;
+        db.updateOrderEmailSent(storedOrder.orderId, true);
       } catch (emailError) {
-        console.error('SendGrid email error:', emailError);
+            console.error('Email error:', emailError);
       }
-      return res.json({ order: storedOrder });
+      try {
+        await sendAdminNotification(storedOrder, 'New COD order received');
+      } catch (adminError) {
+            console.error('Admin notification error:', adminError);
+      }
+      return res.json({ order: { ...storedOrder, emailSent } });
     }
 
     if (!stripe) {
@@ -162,6 +232,11 @@ app.post('/api/orders', async (req, res) => {
     });
 
     const pendingOrder = db.createOrder(order, session.id);
+    try {
+      await sendAdminNotification(pendingOrder, 'New payment order received');
+    } catch (adminError) {
+      console.error('Admin notification error:', adminError);
+    }
     return res.json({ url: session.url, order: pendingOrder });
   } catch (error) {
     console.error('Order creation error:', error);
@@ -197,13 +272,19 @@ app.get('/api/order-by-session/:sessionId', async (req, res) => {
     }
 
     if (session.payment_status === 'paid' && order.status !== 'CONFIRMED') {
-      const updated = db.updateOrderStatus(orderId, 'CONFIRMED', true);
+      const updated = db.updateOrderStatus(orderId, 'CONFIRMED', false);
       try {
         await sendOrderEmail(updated, 'paid');
+        db.updateOrderEmailSent(orderId, true);
       } catch (emailError) {
-        console.error('SendGrid email error:', emailError);
+            console.error('Email error:', emailError);
       }
-      return res.json({ order: updated });
+      try {
+        await sendAdminNotification(updated, 'Payment order confirmed');
+      } catch (adminError) {
+            console.error('Admin notification error:', adminError);
+      }
+      return res.json({ order: db.getOrderById(orderId) });
     }
 
     return res.json({ order });

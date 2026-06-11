@@ -30,7 +30,7 @@
       "description": "Entry-level water purifier with 3-stage filtration",
       "price": 11500,
       "image": "/Fighter P & A 7 L RO + UV + UF Water Purifier.jpg",
-      "inventory": 20,
+      "inventory": 19,
       "filtrationCapacity": "100 GPD",
       "warranty": "2 years"
     },
@@ -98,6 +98,42 @@
       },
       "orderDate": "2026-06-08T12:08:28.374Z",
       "estimatedDelivery": "2026-06-15T12:08:28.375Z",
+      "status": "CONFIRMED",
+      "emailSent": true,
+      "stripeSessionId": null
+    },
+    {
+      "orderId": "ORD-1781158761027",
+      "customerId": "CUST-1781158761028",
+      "items": [
+        {
+          "product": {
+            "id": "3",
+            "name": "Fighter P & A 7 L RO + UV + UF Water Purifier",
+            "description": "Entry-level water purifier with 3-stage filtration",
+            "price": 11500,
+            "image": "/Fighter P & A 7 L RO + UV + UF Water Purifier.jpg",
+            "inventory": 20,
+            "filtrationCapacity": "100 GPD",
+            "warranty": "2 years"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 11500,
+      "paymentMethod": "COD",
+      "customerDetails": {
+        "firstName": "yogesh123",
+        "lastName": "pingale456",
+        "email": "pallavibhosale.14@gmail.com",
+        "phone": "9890536222",
+        "address": "B8, Park Infinia1",
+        "city": "Pune",
+        "state": "India",
+        "pincode": "412308"
+      },
+      "orderDate": "2026-06-11T06:19:21.028Z",
+      "estimatedDelivery": "2026-06-18T06:19:21.034Z",
       "status": "CONFIRMED",
       "emailSent": true,
       "stripeSessionId": null

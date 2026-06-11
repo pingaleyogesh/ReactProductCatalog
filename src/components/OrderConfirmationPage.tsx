@@ -190,9 +190,11 @@ const OrderConfirmationPage: React.FC = () => {
           {order.emailSent ? (
             <>
               <p>
-                A confirmation email has been sent to <strong>{order.customerDetails.email}</strong>
+                A confirmation email has been sent to <strong>{order.customerDetails.email}</strong>.
               </p>
-              <p>You will receive updates on your order via SMS and email.</p>
+              <p>
+                Our store team has also been notified and will email you any updates about your order.
+              </p>
             </>
           ) : order.paymentMethod === 'COD' ? (
             <>
@@ -200,17 +202,18 @@ const OrderConfirmationPage: React.FC = () => {
                 Your order has been confirmed. Order details have been saved for reference.
               </p>
               <p>
-                Our team will contact you at <strong>{order.customerDetails.phone}</strong> to
-                arrange delivery.
+                Our store team has been notified and will follow up with you at <strong>{order.customerDetails.phone}</strong>.
               </p>
             </>
           ) : (
             <>
               <p>
                 Your order has been received. You can track its status using the Order ID:{' '}
-                <strong>{order.orderId}</strong>
+                <strong>{order.orderId}</strong>.
               </p>
-              <p>Check back soon for payment confirmation and tracking updates.</p>
+              <p>
+                Once payment is confirmed, our team will send you an update by email.
+              </p>
             </>
           )}
         </div>
