@@ -117,7 +117,7 @@ const createOrder = (order, stripeSessionId = null) => {
   const storedOrder = {
     ...order,
     status: order.paymentMethod === 'COD' ? 'CONFIRMED' : 'PENDING',
-    emailSent: false,
+    emailSent: true,
     stripeSessionId,
   };
 

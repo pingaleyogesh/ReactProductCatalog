@@ -10,7 +10,7 @@
       "description": "Advanced RO technology with 5-stage filtration",
       "price": 10999,
       "image": "/Purosis AQUAPURO 9 L RO + UV + UF + Alkaline Water Purifier.jpg",
-      "inventory": 25,
+      "inventory": 24,
       "filtrationCapacity": "100 GPD",
       "warranty": "2 years"
     },
@@ -134,6 +134,33 @@
       },
       "orderDate": "2026-06-11T06:19:21.028Z",
       "estimatedDelivery": "2026-06-18T06:19:21.034Z",
+      "status": "CONFIRMED",
+      "emailSent": true,
+      "stripeSessionId": null
+    },
+    {
+      "orderId": "test-order-1781164899269",
+      "items": [
+        {
+          "product": {
+            "id": "1"
+          },
+          "quantity": 1
+        }
+      ],
+      "customerDetails": {
+        "firstName": "QA",
+        "lastName": "Tester",
+        "email": "qa.tester@example.com",
+        "phone": "9999999999",
+        "address": "123 Test Lane",
+        "city": "Testville",
+        "state": "TestState",
+        "pincode": "560001"
+      },
+      "paymentMethod": "COD",
+      "totalAmount": 10999,
+      "estimatedDelivery": "2026-06-18T08:01:39.271Z",
       "status": "CONFIRMED",
       "emailSent": true,
       "stripeSessionId": null

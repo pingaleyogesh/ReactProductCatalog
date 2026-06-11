@@ -7,7 +7,7 @@ const ShoppingContext = createContext<ShoppingContextType | undefined>(undefined
 const MOCK_PRODUCTS: Product[] = [
   {
     id: '1',
-    name: 'Purosis AQUAPURO 9 L RO + UV + UF + Alkaline Water Purifier',
+    name: '2026 New QUAPURO 9 L RO + UV + UF + Alkaline Water Purifier',
     description: 'Advanced RO technology with 5-stage filtration',
     price: 10999,
     image: '/Purosis AQUAPURO 9 L RO + UV + UF + Alkaline Water Purifier.jpg',
