@@ -5,6 +5,8 @@ import { CustomerDetails, PaymentMethod } from '../types/index';
 // @ts-ignore: CSS import without type declarations
 import '../styles/OrderSubmission.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+
 const OrderSubmissionPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -83,7 +85,6 @@ const OrderSubmissionPage: React.FC = () => {
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
-          const response = await fetch(`/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order }),
