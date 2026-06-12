@@ -1,16 +1,20 @@
 [build]
   command = "npm run build"
   publish = "build"
+  functions = "netlify/functions"
 
-# SPA fallback: route all requests to index.html
+# API routes are handled by Netlify Functions
+# /api/products → netlify/functions/products.js
+# /api/orders → netlify/functions/orders.js
+
+# SPA fallback: route all non-API requests to index.html
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Example API proxy (uncomment and set your backend URL if needed):
-# [[redirects]]
-#   from = "/api/*"
-#   to = "https://YOUR_BACKEND_URL.com/:splat"
-#   status = 200
-#   force = true

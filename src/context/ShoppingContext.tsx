@@ -76,7 +76,7 @@ export const ShoppingProvider: React.FC<{ children: ReactNode }> = ({ children }
     const fetchProducts = async () => {
       try {
         const apiUrl = process.env.REACT_APP_API_URL || '';
-        const response = await fetch(`${apiUrl}/api/products`);
+        const response = await fetch(`/api/products`);
         if (!response.ok) {
           const text = await response.text();
           throw new Error(`Failed to load products: ${text}`);
