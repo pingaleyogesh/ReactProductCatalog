@@ -75,7 +75,6 @@ export const ShoppingProvider: React.FC<{ children: ReactNode }> = ({ children }
   React.useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL || '';
         const response = await fetch(`/api/products`);
         if (!response.ok) {
           const text = await response.text();
