@@ -5,6 +5,8 @@ import { CustomerDetails, PaymentMethod } from '../types/index';
 // @ts-ignore: CSS import without type declarations
 import '../styles/OrderSubmission.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+
 const OrderSubmissionPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -82,13 +84,22 @@ const OrderSubmissionPage: React.FC = () => {
     };
 
     try {
-      const response = await fetch('/api/orders', {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order }),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error(
+          'Received an unexpected non-JSON response from the server. Make sure the backend is running and /api/orders is reachable.'
+        );
+      }
+
       if (!response.ok) {
         throw new Error(data.error || 'Unable to submit order.');
       }

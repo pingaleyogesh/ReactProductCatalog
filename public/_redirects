@@ -1,0 +1,3 @@
+/*    /index.html   200
+# Example proxy to backend (set your backend URL in Netlify):
+# /api/*  https://YOUR_BACKEND_URL.com/:splat  200

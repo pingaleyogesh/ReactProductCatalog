@@ -20,7 +20,7 @@
       "description": "Premium RO+UV with advanced minerals addition",
       "price": 6900,
       "image": "/Aquadfresh Ro water Purifier with copper Technology 12 L RO + UV + UF + TDS Control Water Purifier.webp",
-      "inventory": 15,
+      "inventory": 14,
       "filtrationCapacity": "150 GPD",
       "warranty": "2 years"
     },
@@ -40,7 +40,7 @@
       "description": "RO + UV + UF + Alkaline Water Purifier",
       "price": 10500,
       "image": "/aquayash water purifier smart plus.jpg",
-      "inventory": 7,
+      "inventory": 6,
       "filtrationCapacity": "800 GPD",
       "warranty": "1 years"
     },
@@ -161,6 +161,78 @@
       "paymentMethod": "COD",
       "totalAmount": 10999,
       "estimatedDelivery": "2026-06-18T08:01:39.271Z",
+      "status": "CONFIRMED",
+      "emailSent": true,
+      "stripeSessionId": null
+    },
+    {
+      "orderId": "ORD-1781167800104",
+      "customerId": "CUST-1781167800105",
+      "items": [
+        {
+          "product": {
+            "id": "4",
+            "name": "aquayash-smart-water-purifier smart plus",
+            "description": "RO + UV + UF + Alkaline Water Purifier",
+            "price": 10500,
+            "image": "/aquayash water purifier smart plus.jpg",
+            "inventory": 7,
+            "filtrationCapacity": "800 GPD",
+            "warranty": "1 years"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 10500,
+      "paymentMethod": "COD",
+      "customerDetails": {
+        "firstName": "yogesh123",
+        "lastName": "pingale456",
+        "email": "pallavibhosale.14@gmail.com",
+        "phone": "9890536222",
+        "address": "hhjghj",
+        "city": "Pune",
+        "state": "India",
+        "pincode": "412308"
+      },
+      "orderDate": "2026-06-11T08:50:00.105Z",
+      "estimatedDelivery": "2026-06-18T08:50:00.111Z",
+      "status": "CONFIRMED",
+      "emailSent": true,
+      "stripeSessionId": null
+    },
+    {
+      "orderId": "ORD-1781256340028",
+      "customerId": "CUST-1781256340028",
+      "items": [
+        {
+          "product": {
+            "id": "2",
+            "name": "Aquadfresh Ro water Purifier with copper Technology 12 L RO + UV + UF + TDS Control Water Purifier",
+            "description": "Premium RO+UV with advanced minerals addition",
+            "price": 6900,
+            "image": "/Aquadfresh Ro water Purifier with copper Technology 12 L RO + UV + UF + TDS Control Water Purifier.webp",
+            "inventory": 15,
+            "filtrationCapacity": "150 GPD",
+            "warranty": "2 years"
+          },
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 6900,
+      "paymentMethod": "COD",
+      "customerDetails": {
+        "firstName": "yogesh123",
+        "lastName": "pingale456",
+        "email": "pallavibhosale.14@gmail.com",
+        "phone": "9890536222",
+        "address": "wqw",
+        "city": "Pune",
+        "state": "India",
+        "pincode": "741258"
+      },
+      "orderDate": "2026-06-12T09:25:40.028Z",
+      "estimatedDelivery": "2026-06-19T09:25:40.029Z",
       "status": "CONFIRMED",
       "emailSent": true,
       "stripeSessionId": null

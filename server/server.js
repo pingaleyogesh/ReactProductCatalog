@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const Stripe = require('stripe');
-const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
 const db = require('./db');
@@ -14,42 +13,11 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, '../public')));
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const SMTP_HOST = process.env.SMTP_HOST;
-const SMTP_PORT = process.env.SMTP_PORT || '465';
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
-const SMTP_SECURE = process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465';
-const FROM_EMAIL = process.env.FROM_EMAIL || 'orders@siddhiaqua.shop';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'pingaleyogesh@gmail.com';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const PORT = process.env.SERVER_PORT || 5000;
 
-const transporter = SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS
-  ? nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: Number(SMTP_PORT),
-      secure: SMTP_SECURE,
-      auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
-      },
-    })
-  : null;
-
 if (!STRIPE_SECRET_KEY) {
   console.warn('Missing STRIPE_SECRET_KEY in environment. Stripe payment will be disabled and only COD orders will work.');
-}
-
-if (!transporter || !FROM_EMAIL) {
-  console.warn('SMTP is not fully configured. Email notifications will be disabled until SMTP_HOST, SMTP_USER, SMTP_PASS, and FROM_EMAIL are set.');
-} else {
-  transporter.verify((error) => {
-    if (error) {
-      console.warn('SMTP transporter verification failed:', error);
-    } else {
-      console.log('SMTP transporter is ready to send emails.');
-    }
-  });
 }
 
 const stripe = STRIPE_SECRET_KEY ? Stripe(STRIPE_SECRET_KEY) : null;
@@ -90,67 +58,12 @@ const buildEmailHtml = (order, paymentStatus) => {
   `;
 };
 
-const sendOrderEmail = async (order, status) => {
-  if (!transporter || !FROM_EMAIL) {
-    console.warn('SMTP configuration missing. Email not sent.');
-    return;
-  }
-
-  const subject =
-    status === 'paid'
-      ? `Your order ${order.orderId} is confirmed`
-      : `Order received: ${order.orderId}`;
-  const html = buildEmailHtml(order, status);
-  const text = `Order ${order.orderId} ${status === 'paid' ? 'is confirmed' : 'has been received'}. Total: ₹${Math.round(
-    order.totalAmount * 1.18
-  ).toLocaleString()}`;
-
-  await transporter.sendMail({
-    from: FROM_EMAIL,
-    to: order.customerDetails.email,
-    subject,
-    text,
-    html,
-  });
+const sendOrderEmail = async () => {
+  // SMTP support removed. No emails will be sent from the backend.
 };
 
-const sendAdminNotification = async (order, eventType = 'New order placed') => {
-  if (!transporter || !ADMIN_EMAIL || !FROM_EMAIL) {
-    console.warn('SMTP or admin email configuration missing. Admin notification not sent.');
-    return;
-  }
-
-  const subject = `${eventType}: ${order.orderId}`;
-  const html = `
-    <div style="font-family: Arial, sans-serif; color: #333;">
-      <h2>${eventType}</h2>
-      <p><strong>Order ID:</strong> ${order.orderId}</p>
-      <p><strong>Customer:</strong> ${order.customerDetails.firstName} ${order.customerDetails.lastName}</p>
-      <p><strong>Email:</strong> ${order.customerDetails.email}</p>
-      <p><strong>Phone:</strong> ${order.customerDetails.phone}</p>
-      <p><strong>Payment method:</strong> ${order.paymentMethod.replace(/_/g, ' ')}</p>
-      <p><strong>Total amount:</strong> ₹${order.totalAmount.toLocaleString()}</p>
-      <ul>
-        ${order.items
-          .map(
-            (item) =>
-              `<li>${item.product.name} x ${item.quantity} = ₹${(
-                item.product.price * item.quantity
-              ).toLocaleString()}</li>`
-          )
-          .join('')}
-      </ul>
-      <p><strong>Shipping address:</strong></p>
-      <p>${order.customerDetails.address}, ${order.customerDetails.city}, ${order.customerDetails.state} - ${order.customerDetails.pincode}</p>
-    </div>
-  `;
-
-  await transporter.sendMail({
-    from: FROM_EMAIL,
-    to: ADMIN_EMAIL,
-    subject,
-    html,
-  });
+const sendAdminNotification = async () => {
+  // SMTP support removed. No admin notification emails will be sent.
 };
 
 app.get('/api/products', (req, res) => {
